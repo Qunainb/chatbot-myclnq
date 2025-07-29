@@ -1,4 +1,5 @@
 export const registerUser = async (userData) => {
+  console.log(userData)
   const response = await fetch('http://localhost:8000/auth/register', {
     method: 'POST',
     headers: {
@@ -8,6 +9,7 @@ export const registerUser = async (userData) => {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
+      country: userData.country,
       mobileNumber: userData.mobileNumber,
       password: userData.password,
       confirm_password: userData.confirmPassword,
