@@ -28,18 +28,17 @@ export default function Login() {
               <input type="checkbox" className="w-4 h-4 " />
               <p>Remember me</p>
             </div>
-            <p className="underline cursor-pointer">Forget your password</p>
+            <p className="underline cursor-pointer">Forgot password</p>
           </div>
         </form>
         <div className="mt-6">
           <p className="mb-1">
-            Doesn't have account
+            Don't have an account?
             <Link
               className="ml-3 underline cursor-pointer font-medium"
               to="/signup"
             >
-              {" "}
-              Sign Up Now
+              Sign Up
             </Link>
           </p>
         </div>
