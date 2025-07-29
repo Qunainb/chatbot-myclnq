@@ -30,3 +30,24 @@ export const registerUser = async (userData) => {
   
   return data;
 };
+
+export const loginUser = async (credentials) => {
+  console.log(credentials);
+  const response = await fetch('http://localhost:8000/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    const error = new Error(data.message || 'Login failed');
+    error.response = response;
+    throw error;
+  }
+  
+  return data;
+};
