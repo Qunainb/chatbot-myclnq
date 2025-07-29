@@ -1,6 +1,8 @@
+import backendUrl from "../utils/config";
+
 export const registerUser = async (userData) => {
-  console.log(userData)
-  const response = await fetch('http://localhost:8000/auth/register', {
+  // console.log(userData)
+  const response = await fetch(`${backendUrl}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,8 +34,8 @@ export const registerUser = async (userData) => {
 };
 
 export const loginUser = async (credentials) => {
-  console.log(credentials);
-  const response = await fetch('http://localhost:8000/auth/login', {
+  // console.log(credentials);
+  const response = await fetch(`${backendUrl}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
