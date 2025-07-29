@@ -36,13 +36,13 @@ export default function Login() {
     onSuccess: (data) => {
       setUser(data.user);
       // setToken(data.token);
-      if (formData.rememberMe) {
-        localStorage.setItem('authToken', data.token);
-      } else {
-        sessionStorage.setItem('authToken', data.token);
-      }
+      // if (formData.rememberMe) {
+      //   localStorage.setItem('authToken', data.token);
+      // } else {
+      //   sessionStorage.setItem('authToken', data.token);
+      // }
       showToast('Login successful!', 'success');
-      Navigate('/dashboard')
+      // Navigate('/dashboard')
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.message || 
