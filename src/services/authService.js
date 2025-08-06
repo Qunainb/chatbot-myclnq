@@ -1,7 +1,6 @@
 import backendUrl from "../utils/config";
 
 export const registerUser = async (userData) => {
-  // console.log(userData)
   const response = await fetch(`${backendUrl}/auth/register`, {
     method: 'POST',
     headers: {
@@ -11,13 +10,14 @@ export const registerUser = async (userData) => {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
-      country: userData.country,
+      countryCode: userData.countryCode,
       mobileNumber: userData.mobileNumber,
       password: userData.password,
-      confirm_password: userData.confirmPassword,
       dateOfBirth: userData.dateOfBirth,
       height: userData.height,
       weight: userData.weight,
+      heightType: userData.heightType,
+      weightType: userData.weightType,
       gender: userData.gender,
     }),
   });

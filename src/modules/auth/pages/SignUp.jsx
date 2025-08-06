@@ -1,31 +1,39 @@
 import { Link } from "react-router-dom";
 import logo from "../../../assets/logo.png";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../../../services/authService";
 import useAuthStore from "../../../store/authStore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Country } from "country-state-city";
+import CustomDropdown from "../../../components/CustomDropdown";
 
 export default function SignUp() {
   const { setUser, setLoading, clearAuth } = useAuthStore();
   const [validationErrors, setValidationErrors] = useState({});
-  const [countries] = useState(Country.getAllCountries());
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [countries] = useState(Country.getAllCountries().map(country => ({
+    value: country.phonecode, // Using phonecode as value
+    label: `${country.name} (+${country.phonecode})`,
+    phoneCode: country.phonecode,
+    flag: country.flag,
+    name: country.name
+  })));
+  
   const [formData, setFormData] = useState({
+    countryCode: "",
+    mobileNumber: "",
     firstName: "",
     lastName: "",
-    email: "",
-    mobileNumber: "",
-    country: "",
-    password: "",
-    confirmPassword: "",
     dateOfBirth: "",
+    gender: "",
+    email: "",
     height: "",
     weight: "",
-    gender: "",
+    heightType: "cm",
+    weightType: "kg",
+    password: "",
+    confirmPassword: "",
   });
 
   const showToast = (message, type = "error") => {
@@ -55,16 +63,14 @@ export default function SignUp() {
       if (error.response?.status === 422) {
         const errorData = error.response.data;
         if (Array.isArray(errorData.detail)) {
-          // Handle multiple validation errors
           const newErrors = {};
           errorData.detail.forEach((err) => {
-            const field = err.loc[err.loc.length - 1]; // Get the field name
+            const field = err.loc[err.loc.length - 1];
             newErrors[field] = err.msg;
           });
           setValidationErrors(newErrors);
           showToast("Please fix the form errors");
         } else if (typeof errorData.detail === "string") {
-          // Handle single error message
           if (errorData.detail.includes("password")) {
             setValidationErrors({ confirmPassword: errorData.detail });
           } else if (errorData.detail.includes("email")) {
@@ -84,7 +90,6 @@ export default function SignUp() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    // Clear validation error when user types
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
         const newErrors = { ...prev };
@@ -92,6 +97,21 @@ export default function SignUp() {
         return newErrors;
       });
     }
+  };
+
+  const handleCountryCodeChange = (phoneCode) => {
+    setFormData(prev => ({
+      ...prev,
+      countryCode: phoneCode
+    }));
+  };
+
+  const handleHeightTypeChange = (value) => {
+    setFormData({ ...formData, heightType: value });
+  };
+
+  const handleWeightTypeChange = (value) => {
+    setFormData({ ...formData, weightType: value });
   };
 
   const validateForm = () => {
@@ -104,11 +124,8 @@ export default function SignUp() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Invalid email format";
     }
-    if (!formData.country) errors.country = "Country is required";
-    if (
-      !formData.mobileNumber.trim() ||
-      !/^\d{10}$/.test(formData.mobileNumber)
-    ) {
+    if (!formData.countryCode) errors.countryCode = "Country code is required";
+    if (!formData.mobileNumber.trim() || !/^\d{10}$/.test(formData.mobileNumber)) {
       errors.mobileNumber = "Valid 10-digit mobile number is required";
     }
     if (!formData.password || formData.password.length < 6) {
@@ -133,7 +150,29 @@ export default function SignUp() {
       return;
     }
 
-    mutation.mutate(formData);
+    const submissionData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      mobileNumber: formData.mobileNumber,
+      countryCode: formData.countryCode,
+      dateOfBirth: formData.dateOfBirth,
+      gender: formData.gender,
+      height: formData.height,
+      weight: formData.weight,
+      heightType: formData.heightType,
+      weightType: formData.weightType,
+      password: formData.password
+    };
+
+    mutation.mutate(submissionData, {
+      onSuccess: (response) => {
+        if (response?.token) {
+          localStorage.setItem('authToken', response.token);
+          setUser({ ...response.user, token: response.token });
+        }
+      }
+    });
   };
 
   const getFieldError = (fieldName) => {
@@ -143,28 +182,6 @@ export default function SignUp() {
       </span>
     ) : null;
   };
-
-  const {
-    firstName,
-    lastName,
-    email,
-    mobileNumber,
-    country,
-    password,
-    confirmPassword,
-    dateOfBirth,
-    height,
-    weight,
-    gender,
-  } = formData;
-
-  function handleCountryChange(country) {
-    setSelectedCountry(country);
-    setFormData((prev) => ({
-      ...prev,
-      country: country.name,
-    }));
-  }
 
   return (
     <div className="min-h-screen bg-zinc-200 py-6 px-8 md:px-[8%]">
@@ -178,7 +195,7 @@ export default function SignUp() {
               <input
                 type="text"
                 name="firstName"
-                value={firstName}
+                value={formData.firstName}
                 onChange={handleChange}
                 placeholder="First Name"
                 required
@@ -190,7 +207,7 @@ export default function SignUp() {
               <input
                 type="text"
                 name="lastName"
-                value={lastName}
+                value={formData.lastName}
                 onChange={handleChange}
                 placeholder="Last Name"
                 required
@@ -204,7 +221,7 @@ export default function SignUp() {
             <input
               type="email"
               name="email"
-              value={email}
+              value={formData.email}
               onChange={handleChange}
               placeholder="Email"
               required
@@ -214,43 +231,29 @@ export default function SignUp() {
           </div>
 
           <div>
-            {/* <input
-              type="text"
-              name="country"
-              value={country}
-              onChange={handleChange}
-              placeholder="Country"
-              required
-              className="w-full h-8 py-4 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
-            /> */}
-            <select
-              onChange={(event) =>
-                handleCountryChange(
-                  countries.find((c) => c.phonecode === event.target.value)
-                )
-              }
-              className="w-full py-2 px-2 my-3 border-b-2 border-gray-300 text-md outline-0"
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => (
-                <option
-                  key={country.isoCode}
-                  value={country.phonecode}
-                  className="text-sm"
-                >
-                  {country.name} (+{country.phonecode})
-                </option>
-              ))}
-            </select>
-
-            {getFieldError("country")}
+            <CustomDropdown
+              options={countries}
+              value={formData.countryCode}
+              onChange={handleCountryCodeChange}
+              placeholder="Select Country Code"
+              className="mt-3"
+              error={validationErrors.countryCode}
+              renderOption={(option) => (
+                <div className="flex items-center">
+                  <span className="mr-2">{option.flag}</span>
+                  <span>{option.name}</span>
+                  <span className="ml-2 text-gray-500">+{option.phoneCode}</span>
+                </div>
+              )}
+            />
+            {getFieldError("countryCode")}
           </div>
 
           <div>
             <input
               type="tel"
               name="mobileNumber"
-              value={mobileNumber}
+              value={formData.mobileNumber}
               onChange={handleChange}
               placeholder="Mobile Number"
               required
@@ -265,7 +268,7 @@ export default function SignUp() {
             <input
               type="password"
               name="password"
-              value={password}
+              value={formData.password}
               onChange={handleChange}
               placeholder="Password"
               required
@@ -278,7 +281,7 @@ export default function SignUp() {
             <input
               type="password"
               name="confirmPassword"
-              value={confirmPassword}
+              value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm Password"
               required
@@ -291,7 +294,7 @@ export default function SignUp() {
             <input
               type="date"
               name="dateOfBirth"
-              value={dateOfBirth}
+              value={formData.dateOfBirth}
               onChange={handleChange}
               required
               className="w-full h-8 py-4 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
@@ -304,30 +307,25 @@ export default function SignUp() {
               <input
                 type="number"
                 name="height"
-                value={height}
+                value={formData.height}
                 onChange={handleChange}
                 placeholder="Height"
                 min="0"
-                className="w-full  py-2 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
+                className="w-full py-2 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
               />
             </div>
-            {/* <div className="flex-1">
-              <input
-                type="number"
-                name="weight"
-                value={weight}
-                onChange={handleChange}
-                placeholder="Weight (kg)"
-                min="0"
-                className="w-full h-8 py-4 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
-              />
-            </div> */}
+
             <div className="flex-1">
-              <select className="w-full py-2 px-3 my-3 border-b-2 border-gray-300 text-md outline-0">
-                <option value="">Height Type</option>
-                <option value="cm">Centimeter</option>
-                <option value="ft">Feet & Inches</option>
-              </select>
+              <CustomDropdown
+                options={[
+                  { value: 'cm', label: 'Centimeters (cm)' },
+                  { value: 'ft', label: 'Feet & Inches (ft)' }
+                ]}
+                value={formData.heightType}
+                onChange={handleHeightTypeChange}
+                placeholder="Height Unit"
+                className="mt-3"
+              />
             </div>
           </div>
 
@@ -335,21 +333,27 @@ export default function SignUp() {
             <div className="flex-1">
               <input
                 type="number"
-                name="height"
-                value={height}
+                name="weight"
+                value={formData.weight}
                 onChange={handleChange}
-                placeholder="Weight"
+                placeholder={`Weight (${formData.weightType})`}
                 min="0"
+                step={formData.weightType === 'kg' ? '0.1' : '0.5'}
                 className="w-full py-2 px-3 my-3 border-b-2 border-gray-300 text-md outline-0"
               />
             </div>
 
             <div className="flex-1">
-              <select className="w-full py-2 px-3 my-3 border-b-2 border-gray-300 text-md outline-0">
-                <option value="">Weight Type</option>
-                <option value="kg">Kilograms</option>
-                <option value="lbs">Pounds</option>
-              </select>
+              <CustomDropdown
+                options={[
+                  { value: 'kg', label: 'Kilograms (kg)' },
+                  { value: 'lbs', label: 'Pounds (lbs)' }
+                ]}
+                value={formData.weightType}
+                onChange={handleWeightTypeChange}
+                placeholder="Weight Unit"
+                className="mt-3"
+              />
             </div>
           </div>
 
@@ -361,7 +365,7 @@ export default function SignUp() {
                   name="gender"
                   id="male"
                   value="male"
-                  checked={gender === "male"}
+                  checked={formData.gender === "male"}
                   onChange={handleChange}
                   className="mx-2"
                 />
@@ -373,7 +377,7 @@ export default function SignUp() {
                   name="gender"
                   id="female"
                   value="female"
-                  checked={gender === "female"}
+                  checked={formData.gender === "female"}
                   onChange={handleChange}
                   className="mx-2"
                 />
@@ -385,7 +389,7 @@ export default function SignUp() {
                   name="gender"
                   id="other"
                   value="other"
-                  checked={gender === "other"}
+                  checked={formData.gender === "other"}
                   onChange={handleChange}
                   className="mx-2"
                 />
@@ -403,6 +407,7 @@ export default function SignUp() {
             {mutation.isPending ? "Registering..." : "Register"}
           </button>
         </form>
+
         <div className="mt-6">
           <p className="mb-1">
             Already have an account?

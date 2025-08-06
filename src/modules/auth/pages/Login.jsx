@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import myClnqLogo from "../../../assets/logo.png";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { useMutation } from '@tanstack/react-query';
 import { loginUser } from '../../../services/authService';
@@ -9,12 +9,20 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Login() {
-  const { setUser, setLoading, setToken } = useAuthStore();
+  const navigate = useNavigate();
+  const { setUser, setLoading, setToken, token } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (token) {
+      navigate('/dashboard'); // or your desired redirect path
+    }
+  }, [token, navigate]);
 
   const showToast = (message, type = 'error') => {
     toast[type](message, {
@@ -34,15 +42,19 @@ export default function Login() {
       setLoading(true);
     },
     onSuccess: (data) => {
-      setUser(data.user);
-      // setToken(data.token);
-      // if (formData.rememberMe) {
-      //   localStorage.setItem('authToken', data.token);
-      // } else {
-      //   sessionStorage.setItem('authToken', data.token);
-      // }
-      showToast('Login successful!', 'success');
-      // Navigate('/dashboard')
+      // Store the token in the auth store and localStorage
+      if (data.token) {
+        setToken(data.token);
+        // Store user data in the auth store
+        if (data.user) {
+          setUser(data.user);
+        }
+        showToast('Login successful!', 'success');
+        // Redirect to dashboard or home page
+        navigate('/dashboard'); // Update this path as needed
+      } else {
+        throw new Error('No token received from server');
+      }
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.message || 
@@ -50,6 +62,10 @@ export default function Login() {
                          error.message || 
                          "Login failed";
       showToast(errorMessage);
+      // Clear any invalid token
+      if (error.response?.status === 401) {
+        setToken(null);
+      }
     },
     onSettled: () => {
       setLoading(false);
@@ -66,8 +82,15 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Basic client-side validation
+    if (!formData.email || !formData.password) {
+      showToast('Please enter both email and password');
+      return;
+    }
+
     mutation.mutate({
-      email: formData.email,
+      email: formData.email.trim(),
       password: formData.password
     });
   };
@@ -96,6 +119,7 @@ export default function Login() {
             placeholder="Password"
             className="w-full h-12 py-4 px-3 my-3 border-b-2 border-gray-300 text-lg outline-0"
             required
+            minLength={6}
           />
           <button 
             type="submit"
@@ -104,21 +128,28 @@ export default function Login() {
           >
             {mutation.isPending ? 'Signing in...' : 'Sign in'}
           </button>
-          <div className="flex justify-between items-center mt-3 text-sm">
-            <div className="flex items-center gap-1.5">
-              <input 
-                type="checkbox" 
+          <div className="flex justify-between items-center my-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
                 name="rememberMe"
+                id="rememberMe"
                 checked={formData.rememberMe}
                 onChange={handleChange}
-                className="w-4 h-4" 
+                className="mr-2 h-4 w-4"
               />
-              <p>Remember me</p>
+              <label htmlFor="rememberMe" className="text-sm">Remember me</label>
             </div>
-            <Link to="/forgot-password" className="underline cursor-pointer">
-              Forgot password
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot password?
             </Link>
           </div>
+          
+          {mutation.isError && (
+            <div className="text-red-500 text-sm mt-2">
+              {mutation.error.response?.data?.detail || 'Login failed. Please try again.'}
+            </div>
+          )}
         </form>
         <div className="mt-6">
           <p className="mb-1">
