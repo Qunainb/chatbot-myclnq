@@ -18,11 +18,11 @@ export default function Login() {
   });
 
   // Redirect if already logged in
-  useEffect(() => {
-    if (token) {
-      navigate('/dashboard'); // or your desired redirect path
-    }
-  }, [token, navigate]);
+  // useEffect(() => {
+  //   if (token) {
+  //     navigate('/dashboard'); // or your desired redirect path
+  //   }
+  // }, [token, navigate]);
 
   const showToast = (message, type = 'error') => {
     toast[type](message, {
@@ -51,7 +51,7 @@ export default function Login() {
         }
         showToast('Login successful!', 'success');
         // Redirect to dashboard or home page
-        navigate('/dashboard'); // Update this path as needed
+        // navigate('/dashboard'); // Update this path as needed
       } else {
         throw new Error('No token received from server');
       }

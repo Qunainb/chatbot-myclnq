@@ -364,8 +364,8 @@ export default function SignUp() {
                   type="radio"
                   name="gender"
                   id="male"
-                  value="male"
-                  checked={formData.gender === "male"}
+                  value="Male"
+                  checked={formData.gender === "Male"}
                   onChange={handleChange}
                   className="mx-2"
                 />
@@ -376,8 +376,8 @@ export default function SignUp() {
                   type="radio"
                   name="gender"
                   id="female"
-                  value="female"
-                  checked={formData.gender === "female"}
+                  value="Female"
+                  checked={formData.gender === "Female"}
                   onChange={handleChange}
                   className="mx-2"
                 />
