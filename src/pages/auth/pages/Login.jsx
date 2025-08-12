@@ -18,11 +18,11 @@ export default function Login() {
   });
 
   // Redirect if already logged in
-  // useEffect(() => {
-  //   if (token) {
-  //     navigate('/dashboard'); // or your desired redirect path
-  //   }
-  // }, [token, navigate]);
+  useEffect(() => {
+    if (token) {
+      navigate('/chat'); // or your desired redirect path
+    }
+  }, [token, navigate]);
 
   const showToast = (message, type = 'error') => {
     toast[type](message, {
