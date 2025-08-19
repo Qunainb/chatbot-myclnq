@@ -5,8 +5,8 @@ const useAuthStore = create((set) => ({
   token: localStorage.getItem('authToken') || null,
   loading: false,
   error: null,
-  
-  setUser: (user) => set({ user }),
+
+  setUser: (user) => set({user}),
   setToken: (token) => {
     if (token) {
       localStorage.setItem('authToken', token);
@@ -23,6 +23,8 @@ const useAuthStore = create((set) => ({
     set({ user: null, token: null, loading: false, error: null });
   },
   
+  setUserChat: (userChat) => set({ userChat }), 
+
   // Initialize auth state from localStorage on store creation
   initialize: () => {
     const token = localStorage.getItem('authToken');

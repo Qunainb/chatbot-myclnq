@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../../../assets/logo.png";
+import logo from "/logo.png";
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../../../services/authService";
@@ -168,7 +168,12 @@ export default function SignUp() {
     mutation.mutate(submissionData, {
       onSuccess: (response) => {
         if (response?.token) {
-          localStorage.setItem('authToken', response.token);
+          const expiryTIme = now.getTime() + 60 * 60 * 1000;
+          const item = {
+            token : response.token,
+            expiry : expiryTIme
+          }
+          localStorage.setItem('authToken',JSON.stringify(item));
           setUser({ ...response.user, token: response.token });
         }
       }

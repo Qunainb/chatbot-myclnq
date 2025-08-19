@@ -1,0 +1,151 @@
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "../../../store/authStore";
+import { useEffect, useState } from "react";
+import Button from "../../../components/Button";
+import Navbar from "../../../components/NavBar";
+import HoverImage3D from "../../../components/HoverImage";
+import HeroBg from '/Hero_bg.png'
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { chatHistory } from "../../../services/authService";
+
+export default function Dashboard()
+{
+    const navigate = useNavigate();
+    const {setUserChat, userChat, user, setLoading, token, loading} = useAuthStore();
+    const showToast = (message, type = 'error') => {
+        toast[type](message,{
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        })
+    };
+
+    useEffect(() => {
+        mutation.mutate({
+            "token" : token
+        });
+    },[])
+
+    const handleClick = () => {
+        setLoading(true);
+        navigate('/chat');
+    }
+
+    const mutation = useMutation({
+        mutationFn: chatHistory,
+        onMutate: () => {
+            setLoading(true)
+        },
+        onSuccess: (data) => {
+            if(data)
+            {
+                setUserChat(data.data);
+            }
+        },
+        onError: (error) => {
+            const errorMessage = error.response?.data?.message || 
+                                error.response?.data?.detail || 
+                                error.message || 
+                                "Token Invalid, Login Again!!";
+            navigate('/login')
+            showToast(errorMessage);
+        },
+        onSettled: () => {
+            setLoading(false);
+        }
+    })
+
+    return(
+        <>
+            <Navbar/>
+            <div className="h-screen">
+                {/* Hero Section */}
+                <div className=" h-4/5 w-full flex mt-16 md:mt-24 px-10 items-center  bg-cover bg-center justify-between"
+                    style={{ backgroundImage: `url(${HeroBg})` }}>
+                    <div className="flex flex-col p-4 ">
+                        <div className="text-white text-4xl font-medium">
+                            Welcome To HealthCare <br/>At Your FingerTips 24/7!!
+                        </div>
+                        <div className="pt-10">
+                            <Button
+                                text = "Chat With Us"
+                                style_button = "bg-gray-100 text-black px-8 text-md font-bold py-3 rounded-3xl hover:cursor-pointer"
+                                func = {handleClick}
+                            />
+                        </div>
+                    </div>
+                    <div className="mr-10 mb-10 relative group"> 
+                        <div 
+                            className=" bg-white text-red-500 font-semibold px-3 py-2 rounded-2xl text-sm absolute top-4 -right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md"
+                        >
+                            Hi {userChat?.firstName || ""}, How can I <br/> help you?
+                        </div>
+                        <HoverImage3D />
+                    </div>
+                </div>
+                {/* Chats Section */}
+                <div className="h-3/4">
+                    <div className="pt-11 py-4 flex items-center justify-center text-4xl font-bold text-red-600">
+                        Previous Chats    
+                    </div>
+                    <div className="bg-white p-10 flex justify-center items-center h-full">
+                        {
+                            userChat ? ( <span>
+                                {userChat.firstName + " " + userChat.lastName || " "}
+                            </span> ) 
+                            :
+                            (
+                                <div>
+                                    No Chats Available!! Start Talking Now
+                                </div>
+                            )
+                        }
+                    </div>  
+                </div>
+                {/* Footer */}
+                <div className="bg-gray-200 h-40 w-screen flex justify-center p-4">
+                    <div>
+                        <div className="text-black font-bold">
+                            Contact
+                        </div>
+                        <div>
+                            Shaw Centre,<br/>
+                            1 Scotts Road, #20-11/13<br/>
+                            Singapore - 228208
+                        </div>
+                        <div></div>
+                    </div>
+                    <div>
+                        <div className="font-bold"> 
+                            Get in Touch
+                        </div>
+                        <div>
+                            <ul>
+                                <li>Instagram</li>
+                                <li>Facebook</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="flex-col items-center gap-4">
+                        <div>
+                            <img src="/logo.png" alt="MyClnq Logo" className="w-30 h-8"/>
+                        </div>
+                        <div>Making healthcare convenient,<br/> accessible and affordable for all!</div>
+                    </div>
+                    <div>
+                        <div>Get The App</div>
+                        <div><img src="" alt="QR code" /></div>
+                    </div>
+                </div>
+                <div className="bg-red-700 text-white text-md font-medium h-16 flex justify-center items-center">
+                    ©2023 MyCLNQ Health. All Rights Reserved
+                </div>
+            </div>
+        </>
+    );
+} 

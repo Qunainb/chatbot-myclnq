@@ -3,10 +3,11 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import Login from "./modules/auth/pages/Login";
-import SignUp from "./modules/auth/pages/SignUp";
+import Login from "./pages/auth/pages/Login";
+import SignUp from "./pages/auth/pages/SignUp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Chat from "./modules/Dashboard/pages/Chat";
+import Chat from "./pages/Dashboard/pages/Chat";
+import Dashboard from "./pages/Dashboard/pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <SignUp /> },
   { path: "/chat", element: <Chat /> },
+  { path: "/dashboard", element: <Dashboard/>},
 ]);
 
 function App() {

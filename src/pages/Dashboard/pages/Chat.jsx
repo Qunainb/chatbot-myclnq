@@ -1,4 +1,4 @@
-import docImage from "../../../assets/image-8.png";
+import docImage from "/image-8.png";
 
 export default function Chat() {
   const messages = [
