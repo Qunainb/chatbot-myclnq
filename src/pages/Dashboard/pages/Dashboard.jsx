@@ -8,6 +8,7 @@ import HeroBg from '/Hero_bg.png'
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { chatHistory } from "../../../services/authService";
+import Footer from "../../../components/Footer";
 
 export default function Dashboard()
 {
@@ -63,18 +64,18 @@ export default function Dashboard()
     return(
         <>
             <Navbar/>
-            <div className="h-screen">
+            <div className="h-full">
                 {/* Hero Section */}
                 <div className=" h-4/5 w-full flex mt-16 md:mt-24 px-10 items-center  bg-cover bg-center justify-between"
                     style={{ backgroundImage: `url(${HeroBg})` }}>
                     <div className="flex flex-col p-4 ">
-                        <div className="text-white text-4xl font-medium">
-                            Welcome To HealthCare <br/>At Your FingerTips 24/7!!
+                        <div className="text-white text-md md:text-2xl lg:text-4xl font-medium">
+                            Welcome To HealthCare At <br/> Your FingerTips 24/7!!
                         </div>
                         <div className="pt-10">
                             <Button
                                 text = "Chat With Us"
-                                style_button = "bg-gray-100 text-black px-8 text-md font-bold py-3 rounded-3xl hover:cursor-pointer"
+                                style_button = "bg-gray-100 text-black px-8 text-xs md:text-md font-bold py-3 rounded-3xl hover:cursor-pointer"
                                 func = {handleClick}
                             />
                         </div>
@@ -107,45 +108,9 @@ export default function Dashboard()
                         }
                     </div>  
                 </div>
-                {/* Footer */}
-                <div className="bg-gray-200 h-40 w-screen flex justify-center p-4">
-                    <div>
-                        <div className="text-black font-bold">
-                            Contact
-                        </div>
-                        <div>
-                            Shaw Centre,<br/>
-                            1 Scotts Road, #20-11/13<br/>
-                            Singapore - 228208
-                        </div>
-                        <div></div>
-                    </div>
-                    <div>
-                        <div className="font-bold"> 
-                            Get in Touch
-                        </div>
-                        <div>
-                            <ul>
-                                <li>Instagram</li>
-                                <li>Facebook</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="flex-col items-center gap-4">
-                        <div>
-                            <img src="/logo.png" alt="MyClnq Logo" className="w-30 h-8"/>
-                        </div>
-                        <div>Making healthcare convenient,<br/> accessible and affordable for all!</div>
-                    </div>
-                    <div>
-                        <div>Get The App</div>
-                        <div><img src="" alt="QR code" /></div>
-                    </div>
-                </div>
-                <div className="bg-red-700 text-white text-md font-medium h-16 flex justify-center items-center">
-                    ©2023 MyCLNQ Health. All Rights Reserved
-                </div>
             </div>
+            {/* Footer */}
+            <Footer/>
         </>
     );
 } 
