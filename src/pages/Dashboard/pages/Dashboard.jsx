@@ -4,16 +4,35 @@ import { useEffect, useState } from "react";
 import Button from "../../../components/Button";
 import Navbar from "../../../components/NavBar";
 import HoverImage3D from "../../../components/HoverImage";
-import HeroBg from '/Hero_bg.png'
+import HeroBg_Big from '/Hero_bg_big.png'
+import HeroBgMedium from '/Hero_bg.png' 
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { chatHistory } from "../../../services/authService";
 import Footer from "../../../components/Footer";
+import { useMediaQuery } from 'react-responsive';
 
 export default function Dashboard()
 {
     const navigate = useNavigate();
     const {setUserChat, userChat, user, setLoading, token, loading} = useAuthStore();
+    
+    // Use media queries to detect screen sizes
+    const isLargeScreen = useMediaQuery({ minWidth: 1300 });
+    const isMediumScreen = useMediaQuery({ minWidth: 800, maxWidth: 1299 });
+    const isSmallScreen = useMediaQuery({ maxWidth: 799 });
+    
+    const getBackgroundImage = () => {
+        if (isLargeScreen) {
+            return HeroBg_Big;
+        } else if (isMediumScreen) {
+            return HeroBgMedium;
+        // } else if (isSmallScreen) {
+        //     return HeroBgSmall;
+        }
+        return HeroBgMedium; // default
+    };
+
     const showToast = (message, type = 'error') => {
         toast[type](message,{
             position: "top-right",
@@ -30,7 +49,7 @@ export default function Dashboard()
         mutation.mutate({
             "token" : token
         });
-    },[])
+    },[token])
 
     const handleClick = () => {
         setLoading(true);
@@ -66,8 +85,8 @@ export default function Dashboard()
             <Navbar/>
             <div className="h-full">
                 {/* Hero Section */}
-                <div className=" h-4/5 w-full flex mt-16 md:mt-24 px-10 items-center  bg-cover bg-center justify-between"
-                    style={{ backgroundImage: `url(${HeroBg})` }}>
+                <div className="h-4/5 w-full flex mt-16 md:mt-24 px-10 items-center bg-cover bg-center justify-between"
+                    style={{ backgroundImage: `url(${getBackgroundImage()})` }}>
                     <div className="flex flex-col p-4 ">
                         <div className="text-white text-md md:text-2xl lg:text-4xl font-medium">
                             Welcome To HealthCare At <br/> Your FingerTips 24/7!!
@@ -82,7 +101,7 @@ export default function Dashboard()
                     </div>
                     <div className="mr-10 mb-10 relative group"> 
                         <div 
-                            className=" bg-white text-red-500 font-semibold px-3 py-2 rounded-2xl text-sm absolute top-4 -right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md"
+                            className="bg-white text-red-500 font-semibold px-3 py-2 rounded-2xl text-sm absolute top-4 -right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md"
                         >
                             Hi {userChat?.firstName || ""}, How can I <br/> help you?
                         </div>
@@ -113,4 +132,4 @@ export default function Dashboard()
             <Footer/>
         </>
     );
-} 
+}

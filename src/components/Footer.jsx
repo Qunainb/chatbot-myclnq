@@ -31,10 +31,10 @@ export default function Footer(){
                     </div>
                 </div>
                 <div>
-                    <div className="font-bold text-xs md:text-md lg:text-lg">
+                    <div className="font-bold text-xs pb-2 md:text-md lg:text-lg">
                         Get The App
                     </div>
-                    <div><img src="" alt="QR code" /></div>
+                    <img src="qr_code.png" alt="QR code" className="w-30 h-24 pb-4"/>
                 </div>
             </div>
             <div className="bg-red-700 text-white text-xs md:text-md font-medium h-16 flex justify-center items-center">
